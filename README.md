@@ -104,5 +104,6 @@ The platform is capable of identifying security weaknesses such as:
 ├── README.md
 ├── .env
 
+© 2026 Nexvora. All rights reserved.
 
 
