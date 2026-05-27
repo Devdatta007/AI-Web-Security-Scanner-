@@ -1,4 +1,5 @@
 # AI Web Security Scanner
+Live URL:https://ai-web-security-scanner.onrender.com
 
 AI Web Security Scanner is a next-generation AI-powered cybersecurity platform designed to automate web vulnerability detection, network reconnaissance, and intelligent security auditing.
 
@@ -22,7 +23,7 @@ The platform is capable of identifying security weaknesses such as:
 - Honeypot/deception risks
 - Publicly exposed sensitive services
 
----
+
 
 ## Features
 
@@ -68,7 +69,6 @@ The platform is capable of identifying security weaknesses such as:
 - Persistent scan history
 - SQLite database integration
 
----
 
 ## Tech Stack
 
@@ -91,8 +91,7 @@ The platform is capable of identifying security weaknesses such as:
 ### Reporting
 - ReportLab PDF Engine
 
----
-
+                                
 ## Project Structure
 
 ```bash
@@ -106,6 +105,4 @@ The platform is capable of identifying security weaknesses such as:
 ├── .env
 
 
-Live URL : https://ai-web-security-scanner.onrender.com
 
-Designed & Developed Under ©2026 Nexvora.All Rights Reserved.
