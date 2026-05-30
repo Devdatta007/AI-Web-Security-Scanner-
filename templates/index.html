@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Web Security Scanner | Security Intelligence</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        black: "#000000",
+                        white: "#FFFFFF",
+                        border: "#222222",
+                        surface: "#000000",
+                        zinc: {
+                            950: "#000000",
+                            900: "#111111",
+                            800: "#222222",
+                            400: "#888888",
+                            500: "#aaaaaa",
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+
+<body class="bg-black text-white min-h-screen flex flex-col font-sans antialiased">
+
+    <!-- Navbar -->
+    <header
+        class="h-20 flex items-center justify-center border-b border-border/50 sticky top-0 bg-black/80 backdrop-blur-md z-50">
+        <div class="max-w-4xl w-full px-6 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <i data-lucide="shield-check" class="w-5 h-5"></i>
+                <h1 class="text-sm font-bold tracking-[0.3em] uppercase">AI Web Security Scanner</h1>
+            </div>
+            <div class="flex items-center gap-6 text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+                <span class="text-zinc-600">Operator: <span class="text-white">{{ username }}</span></span>
+                <a href="/" class="text-white">Audit</a>
+                <a href="/history" class="hover:text-white transition-colors">Archives</a>
+                <a href="/logout" class="hover:text-white transition-colors">Term Link (Logout)</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col items-center py-16 px-6">
+        <div class="max-w-3xl w-full space-y-16">
+
+            <!-- Hero -->
+            <div class="space-y-4 text-center">
+                <h2 class="text-5xl md:text-7xl font-black uppercase tracking-tighter">Security Audit.</h2>
+                <p class="text-zinc-400 text-sm font-medium leading-relaxed max-w-xl mx-auto">Centered intelligence for
+                    modern infrastructure. Enter a target to synthesize a deep security audit report.</p>
+            </div>
+
+            <!-- Recon Form -->
+            <div class="bg-black border border-border p-8 md:p-12 rounded-none">
+                <form id="scanForm" class="space-y-8">
+                    <div class="space-y-3">
+                        <label for="url"
+                            class="block text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Target
+                            Infrastructure</label>
+                        <div class="relative">
+                            <i data-lucide="terminal"
+                                class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700"></i>
+                            <input type="text" id="url" name="url" placeholder="https://api.target.com" required
+                                class="w-full bg-black border border-border pl-12 pr-4 py-5 text-white focus:outline-none focus:border-white transition-all font-mono text-sm placeholder:text-zinc-800">
+                        </div>
+                    </div>
+
+                    <div
+                        class="flex items-center gap-3 p-4 border border-border/50 hover:bg-zinc-900/10 transition-colors cursor-pointer rounded-none group">
+                        <input type="checkbox" id="authorized" name="authorized" required
+                            class="w-4 h-4 accent-white bg-black border-border rounded-none shrink-0">
+                        <label for="authorized"
+                            class="text-[9px] font-bold text-zinc-400 group-hover:text-white uppercase tracking-widest leading-none cursor-pointer transition-colors">
+                            I verify explicit authorization for this reconnaissance session.
+                        </label>
+                    </div>
+
+                    <button type="submit" id="scanBtn"
+                        class="w-full bg-white text-black hover:invert py-5 font-black text-xs uppercase tracking-[0.4em] transition-all active:scale-[0.98] flex items-center justify-center gap-3">
+                        <i data-lucide="play" class="w-3 h-3 fill-current"></i>
+                        <span>Start Session</span>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Status/Console -->
+            <div id="console-container" class="hidden space-y-4">
+                <div class="flex items-center justify-between border-b border-border pb-4">
+                    <div class="flex items-center gap-3 text-[10px] font-bold text-zinc-400 uppercase tracking-widest">
+                        <i data-lucide="database" class="w-3 h-3"></i>
+                        Live Recon Stream
+                    </div>
+                    <div id="status-indicator" class="hidden flex items-center gap-2">
+                        <span class="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+                        <span class="text-[9px] font-bold text-white">ACTIVE</span>
+                    </div>
+                </div>
+                <div id="console-output"
+                    class="font-mono text-[11px] leading-relaxed max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
+                </div>
+            </div>
+
+            <!-- Loader -->
+            <div id="loading" class="hidden flex flex-col items-center justify-center py-10 space-y-4">
+                <div class="w-8 h-8 border-2 border-zinc-800 border-t-white rounded-full animate-spin"></div>
+                <p class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">Compiling Intelligence...</p>
+            </div>
+
+            <div id="error-container"
+                class="hidden bg-black border border-white/20 p-6 flex items-center gap-4 rounded-none">
+                <i data-lucide="alert-circle" class="w-5 h-5 text-white"></i>
+                <div id="error-text" class="text-xs font-mono text-white"></div>
+            </div>
+
+            <!-- Results Preview (Short Version, Redirect Link Preferred) -->
+            <div id="results-container" class="hidden space-y-8 pt-8 border-t border-border">
+                <div class="flex flex-col md:flex-row items-center justify-between gap-6">
+                    <div class="text-center md:text-left">
+                        <h3 id="meta-url" class="text-2xl font-black uppercase tracking-tight mb-2"></h3>
+                        <p class="text-[10px] text-zinc-400 font-bold uppercase tracking-widest">Intelligence Session
+                            Successful</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <a id="standaloneLink" href="#"
+                            class="px-6 py-3 border border-white text-white hover:bg-white hover:text-black font-black text-xs uppercase tracking-widest transition-all">Full
+                            Report</a>
+                        <a id="downloadBtn" href="#"
+                            class="px-6 py-3 bg-white text-black font-black text-xs uppercase tracking-widest hover:invert transition-all">PDF
+                            Export</a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer class="py-12 border-t border-border/50 flex flex-col items-center space-y-6">
+        <div class="text-[10px] font-bold text-zinc-400 uppercase tracking-widest">© 2026 AI Web Security Scanner</div>
+        <div class="flex gap-8 text-[9px] font-bold text-zinc-600 uppercase tracking-widest">
+            <a href="#" class="hover:text-white transition-colors">Endpoint Matrix</a>
+            <a href="#" class="hover:text-white transition-colors">Neural Weights</a>
+            <a href="#" class="hover:text-white transition-colors">Terms of Operations</a>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>

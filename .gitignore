@@ -1,0 +1,26 @@
+# Environment & Secrets
+.env
+
+# Database
+*.db
+db_errors.log
+
+# Generated PDF Reports
+reports/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Virtual environments
+venv/
+.venv/
+env/
+
+# VS Code
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
