@@ -71,6 +71,53 @@
                     modern infrastructure. Enter a target to synthesize a deep security audit report.</p>
             </div>
 
+            <!-- API Key Configuration -->
+            <div id="api-panel" class="bg-black border border-border p-6 rounded-none space-y-4" data-has-system-key="{{ 'true' if has_system_key else 'false' }}">
+                <div class="flex items-center justify-between cursor-pointer select-none" id="api-header">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="key" class="w-4 h-4 text-zinc-400"></i>
+                        <span class="text-[10px] font-bold text-zinc-400 uppercase tracking-[0.2em]">Intelligence Uplink</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <!-- Status Badge -->
+                        <span id="api-status-badge" class="px-2 py-0.5 border text-[8px] font-black uppercase tracking-widest transition-all">
+                            Checking...
+                        </span>
+                        <i id="api-toggle-icon" data-lucide="chevron-down" class="w-4 h-4 text-zinc-400 transition-transform duration-300"></i>
+                    </div>
+                </div>
+
+                <!-- Collapsible body -->
+                <div id="api-body" class="hidden space-y-4 pt-4 border-t border-border/50 transition-all duration-300">
+                    <p class="text-[10px] text-zinc-500 font-mono leading-relaxed">
+                        Specify a custom NVIDIA API Key for report generation. If left blank, the scanner uses the server's pre-configured key.
+                    </p>
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="relative flex-1">
+                            <i data-lucide="shield-alert" class="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-700"></i>
+                            <input type="password" id="nvidia-api-key-input" placeholder="nvapi-..." 
+                                class="w-full bg-black border border-border pl-12 pr-12 py-3 text-white focus:outline-none focus:border-white transition-all font-mono text-xs placeholder:text-zinc-800">
+                            <button type="button" id="api-visibility-btn" class="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </button>
+                        </div>
+                        <div class="flex gap-2 shrink-0">
+                            <button type="button" id="api-save-btn" 
+                                class="px-5 py-3 bg-white text-black hover:invert font-black text-[10px] uppercase tracking-widest transition-all active:scale-[0.98] flex items-center gap-2">
+                                <i data-lucide="save" class="w-3.5 h-3.5"></i>
+                                Save
+                            </button>
+                            <button type="button" id="api-clear-btn" 
+                                class="px-5 py-3 border border-border hover:border-white text-zinc-400 hover:text-white font-black text-[10px] uppercase tracking-widest transition-all active:scale-[0.98] flex items-center gap-2">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                Reset
+                            </button>
+                        </div>
+                    </div>
+                    <div id="api-feedback" class="hidden text-[9px] font-mono uppercase tracking-widest"></div>
+                </div>
+            </div>
+
             <!-- Recon Form -->
             <div class="bg-black border border-border p-8 md:p-12 rounded-none">
                 <form id="scanForm" class="space-y-8">

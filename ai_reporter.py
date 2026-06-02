@@ -7,8 +7,9 @@ from dotenv import load_dotenv
 # Load environment variables
 load_dotenv()
 
-def generate_ai_report(scan_summary, log_callback=None):
-    api_key = os.environ.get("NVIDIA_API_KEY")
+def generate_ai_report(scan_summary, api_key=None, log_callback=None):
+    if not api_key:
+        api_key = os.environ.get("NVIDIA_API_KEY")
     if not api_key:
         print("❌ Error: NVIDIA API key is missing.")
         return {"status": "error", "message": "NVIDIA API key for Mistral/NIM is missing on the server."}

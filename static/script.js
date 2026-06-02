@@ -42,6 +42,123 @@ document.addEventListener('DOMContentLoaded', () => {
         printBtn.addEventListener('click', () => window.print());
     }
 
+    // API Key Panel Logic
+    const apiPanel = document.getElementById('api-panel');
+    const apiHeader = document.getElementById('api-header');
+    const apiBody = document.getElementById('api-body');
+    const apiToggleIcon = document.getElementById('api-toggle-icon');
+    const apiKeyInput = document.getElementById('nvidia-api-key-input');
+    const apiVisibilityBtn = document.getElementById('api-visibility-btn');
+    const apiSaveBtn = document.getElementById('api-save-btn');
+    const apiClearBtn = document.getElementById('api-clear-btn');
+    const apiStatusBadge = document.getElementById('api-status-badge');
+    const apiFeedback = document.getElementById('api-feedback');
+
+    if (apiPanel) {
+        const hasSystemKey = apiPanel.dataset.hasSystemKey === 'true';
+
+        function updateStatusBadge() {
+            const localKey = localStorage.getItem('nvidia_api_key');
+            if (localKey && localKey.trim()) {
+                apiStatusBadge.textContent = 'Session Configured';
+                apiStatusBadge.className = 'px-2 py-0.5 border text-[8px] font-black uppercase tracking-widest transition-all text-white border-white bg-white/10 shadow-[0_0_8px_rgba(255,255,255,0.2)]';
+            } else if (hasSystemKey) {
+                apiStatusBadge.textContent = 'System Default Active';
+                apiStatusBadge.className = 'px-2 py-0.5 border text-[8px] font-black uppercase tracking-widest transition-all text-zinc-500 border-zinc-800 bg-transparent';
+            } else {
+                apiStatusBadge.textContent = 'Missing';
+                apiStatusBadge.className = 'px-2 py-0.5 border text-[8px] font-black uppercase tracking-widest transition-all text-orange-400 border-orange-400/40 bg-orange-400/5';
+            }
+        }
+
+        // Initialize UI
+        const savedKey = localStorage.getItem('nvidia_api_key');
+        if (savedKey) {
+            apiKeyInput.value = savedKey;
+        }
+        updateStatusBadge();
+
+        // Toggle visibility
+        apiHeader.addEventListener('click', () => {
+            apiBody.classList.toggle('hidden');
+            if (apiToggleIcon) {
+                apiToggleIcon.classList.toggle('rotate-180');
+            }
+        });
+
+        // Toggle Key Input Visibility
+        if (apiVisibilityBtn && apiKeyInput) {
+            apiVisibilityBtn.addEventListener('click', () => {
+                const isPassword = apiKeyInput.getAttribute('type') === 'password';
+                apiKeyInput.setAttribute('type', isPassword ? 'text' : 'password');
+                apiVisibilityBtn.innerHTML = isPassword 
+                    ? '<i data-lucide="eye-off" class="w-4 h-4"></i>'
+                    : '<i data-lucide="eye" class="w-4 h-4"></i>';
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            });
+        }
+
+        // Show feedback message
+        function showFeedback(message, isError = false) {
+            if (!apiFeedback) return;
+            apiFeedback.textContent = message;
+            apiFeedback.className = `text-[9px] font-mono uppercase tracking-widest block ${
+                isError ? 'text-red-500' : 'text-emerald-400'
+            }`;
+            apiFeedback.classList.remove('hidden');
+            setTimeout(() => {
+                apiFeedback.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Save Button Handler
+        if (apiSaveBtn) {
+            apiSaveBtn.addEventListener('click', async () => {
+                const keyVal = apiKeyInput.value.trim();
+                if (!keyVal) {
+                    showFeedback('Cannot save empty value. Click reset to clear.', true);
+                    return;
+                }
+
+                localStorage.setItem('nvidia_api_key', keyVal);
+                updateStatusBadge();
+                showFeedback('Key Saved Locally');
+
+                // Synchronize with server session asynchronously
+                try {
+                    await fetch('/set_api_key', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ api_key: keyVal })
+                    });
+                } catch (e) {
+                    console.warn("Failed to synchronize key with session:", e);
+                }
+            });
+        }
+
+        // Clear Button Handler
+        if (apiClearBtn) {
+            apiClearBtn.addEventListener('click', async () => {
+                localStorage.removeItem('nvidia_api_key');
+                apiKeyInput.value = '';
+                updateStatusBadge();
+                showFeedback('Configuration Cleared');
+
+                // Clear from server session asynchronously
+                try {
+                    await fetch('/set_api_key', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ api_key: '' })
+                    });
+                } catch (e) {
+                    console.warn("Failed to clear session key:", e);
+                }
+            });
+        }
+    }
+
     // Form Submission
     if (scanForm) {
         scanForm.addEventListener('submit', async (e) => {
@@ -68,11 +185,13 @@ document.addEventListener('DOMContentLoaded', () => {
             scanBtn.querySelector('span').textContent = 'Initializing Analysis...';
             if (statusIndicator) statusIndicator.classList.remove('hidden');
 
+            const apiKeyPayload = localStorage.getItem('nvidia_api_key') || '';
+
             try {
                 const response = await fetch('/scan', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: urlInput, authorized: authorized })
+                    body: JSON.stringify({ url: urlInput, authorized: authorized, api_key: apiKeyPayload })
                 });
 
                 const data = await response.json();

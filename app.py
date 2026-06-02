@@ -5,6 +5,7 @@ import json
 import queue
 import uuid
 import threading
+import traceback
 from dotenv import load_dotenv
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -63,28 +64,35 @@ def stream_logs(scan_id):
 
 @app.before_request
 def require_login():
-    # results and stream are partially bypassed for recovery robustness
-    # check is still performed inside those routes if needed
-    allowed_routes = ['login', 'register', 'static', 'chrome_devtools_config', 'get_results', 'stream']
-    if 'user_id' not in session and request.endpoint not in allowed_routes:
-        return redirect(url_for('login'))
+    try:
+        # results and stream are partially bypassed for recovery robustness
+        # check is still performed inside those routes if needed
+        allowed_routes = ['login', 'register', 'static', 'chrome_devtools_config', 'get_results', 'stream']
+        if 'user_id' not in session and request.endpoint not in allowed_routes:
+            return redirect(url_for('login'))
+    except Exception:
+        return f"<pre>Before request error:\n{traceback.format_exc()}</pre>", 500
 
 @app.route('/')
 def index():
-    return render_template('index.html', username=session.get('username'))
+    has_system_key = bool(os.getenv('NVIDIA_API_KEY'))
+    return render_template('index.html', username=session.get('username'), has_system_key=has_system_key)
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if request.method == 'POST':
-        username = request.form.get('username')
-        password = request.form.get('password')
-        user = get_user_by_username(username)
-        if user and check_password_hash(user['password_hash'], password):
-            session['user_id'] = user['id']
-            session['username'] = user['username']
-            return redirect(url_for('index'))
-        return redirect(url_for('login', error='Invalid Identity or Signature'))
-    return render_template('login.html')
+    try:
+        if request.method == 'POST':
+            username = request.form.get('username')
+            password = request.form.get('password')
+            user = get_user_by_username(username)
+            if user and check_password_hash(user['password_hash'], password):
+                session['user_id'] = user['id']
+                session['username'] = user['username']
+                return redirect(url_for('index'))
+            return redirect(url_for('login', error='Invalid Identity or Signature'))
+        return render_template('login.html')
+    except Exception:
+        return f"<pre>Login route error:\n{traceback.format_exc()}</pre>", 500
 
 @app.route('/register', methods=['POST'])
 def register():
@@ -103,6 +111,15 @@ def logout():
     session.clear()
     return redirect(url_for('login'))
 
+@app.route('/set_api_key', methods=['POST'])
+def set_api_key():
+    data = request.json or {}
+    api_key = data.get('api_key')
+    if api_key is not None:
+        session['NVIDIA_API_KEY'] = api_key.strip()
+        return jsonify({"status": "success", "message": "API key synchronized with session."})
+    return jsonify({"status": "error", "message": "Missing api_key in payload"}), 400
+
 @app.route('/.well-known/appspecific/com.chrome.devtools.json')
 def chrome_devtools_config():
     # Silencing Chrome DevTools 404 noise
@@ -120,6 +137,7 @@ def scan():
         
     url = data.get('url')
     authorized = data.get('authorized')
+    api_key = data.get('api_key') or session.get('NVIDIA_API_KEY')
     
     if not url or not authorized:
         return jsonify({"status": "error", "message": "URL and Authorization required"}), 400
@@ -149,7 +167,7 @@ def scan():
             
             # 5. Generate AI report with real-time streaming
             log_to_queue("🧠 CALLING NVIDIA MISTRAL-LARGE-3 (FLAGSHIP INTELLIGENCE)...")
-            ai_response = generate_ai_report(scan_summary, log_callback=log_to_queue)
+            ai_response = generate_ai_report(scan_summary, api_key=api_key, log_callback=log_to_queue)
             
             ai_report_content = ai_response.get('report', '') if ai_response.get('status') == 'success' else f"### AI Analysis Unfinished\n{ai_response.get('message')}"
             
