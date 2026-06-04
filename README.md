@@ -4,15 +4,25 @@ AI Web Security Scanner is an advanced cybersecurity auditing platform built wit
 
 Key Features
 🔍 Automated Nmap-based network and service scanning
+
 🌐 Security header analysis and HTTPS verification
+
 🛰️ Subdomain reconnaissance and discovery
+
 🧠 AI-powered vulnerability assessment using NVIDIA NIM models
+
 🚨 Vulnerability intelligence mapping with CVE references
+
 🕵️ Honeypot and deception-risk detection
+
 📄 Professional PDF security report generation
+
 👤 User authentication and scan history management
+
 💾 SQLite-based report storage and retrieval
+
 ⚡ Real-time scan progress streaming using Server-Sent Events (SSE)
+
 How It Works
 Users authenticate and submit a target website.
 The scanner resolves the target domain and performs a fast Nmap service scan.
@@ -37,7 +47,8 @@ Requests
 Project Goal
 The platform helps security professionals, penetration testers, students, and website administrators quickly identify potential security weaknesses, understand associated risks, and receive AI-generated remediation guidance through a centralized web interface.
 
+The platform helps security professionals, penetration testers, students, and website administrators quickly identify potential security weaknesses, understand associated risks, and receive AI-generated remediation guidance through a centralized web interface.
+
 Designed And Developed By Nexvora 
 
-
-The platform helps security professionals, penetration testers, students, and website administrators quickly identify potential security weaknesses, understand associated risks, and receive AI-generated remediation guidance through a centralized web interface.
+© 2026 Nexvora. All Rights Reserved.
